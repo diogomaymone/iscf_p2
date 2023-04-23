@@ -19,21 +19,22 @@ def generate(median=90, err=10, outlier_err=30, size=1000, outlier_size=10):
     return data
 
 if __name__ == '__main__':
-    broker = os.environ.get('MQTT_BROKER', 'localhost')
-    rate = os.environ.get('MQTT_RATE', '1')
-    topic = os.environ.get('MQTT_TOPIC', 'test')
+    # retrieve the environment variable values for the mqtt broker and the desired rate for the publisher
+    broker = os.environ.get('MQTT_BROKER')
+    rate = float(os.environ.get('PUBLISH_RATE'))
+    topic = os.environ.get('MQTT_TOPIC')
 
     # use the generate function to create a pool of values for the publisher
-    data_pool = generate()
+    data = generate()
 
-    # publish a msg with a value randomly sampled from the data array. 
+    # publish a msg with a value randomly sampled from the data array.
     # make it so that there's a 10% chance the value sent is null to emulate a sensor failure
-    # you should filter these null values in Node Red 
+    # you should filter these null values in Node Red
     while True:
-        value = np.random.choice(data_pool)
+        value = np.random.choice(data)
         if np.random.rand() < 0.1:
             value = None
         if value is not None:
             payload = str(value)
-            pub.single(topic, payload, hostname=broker)
-        time.sleep(1.0 / float(rate))
+            pub.single(topic, payload=payload, hostname=broker)
+        time.sleep(1/rate)
