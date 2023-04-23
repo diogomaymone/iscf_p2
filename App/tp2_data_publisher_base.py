@@ -1,6 +1,6 @@
-import os
 import paho.mqtt.publish as pub
 import numpy as np
+import os
 import time
 
 def generate(median=90, err=10, outlier_err=30, size=1000, outlier_size=10):
@@ -19,17 +19,17 @@ def generate(median=90, err=10, outlier_err=30, size=1000, outlier_size=10):
     return data
 
 if __name__ == '__main__':
-    broker = os.environ.get('MQTT_BROKER', 'localhost')
-    rate = int(os.environ.get('RATE', 1))
-    topic = os.environ.get('TOPIC', 'data')
+    broker = os.getenv('BROKER')
+    rate = os.getenv('RATE')
+    topic = os.getenv('TOPIC')
 
     data = generate()
 
     while True:
         value = np.random.choice(data)
-        if np.random.random() < 0.1:
+        if np.random.rand() < 0.1:
             value = None
         if value is not None:
-            payload = {'value': value}
-            pub.single(topic, payload=payload, hostname=broker)
-        time.sleep(1 / rate)
+            msg = {'value': value}
+            pub.single(topic, payload=msg, hostname=broker)
+        time.sleep(1 / float(rate))
