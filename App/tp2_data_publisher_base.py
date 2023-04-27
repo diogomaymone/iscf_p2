@@ -19,9 +19,9 @@ def generate(median=90, err=10, outlier_err=30, size=1000, outlier_size=10):
     return data
 
 if __name__ == '__main__':
-    broker = os.getenv('BROKER')
-    rate = os.getenv('RATE')
-    topic = os.getenv('TOPIC')
+    broker = os.environ.get('MQTT_BROKER')
+    rate = float(os.environ.get('PUBLISH_RATE'))
+    topic = os.environ.get('MQTT_TOPIC')
 
     data = generate()
 
@@ -29,7 +29,9 @@ if __name__ == '__main__':
         value = np.random.choice(data)
         if np.random.rand() < 0.1:
             value = None
+
         if value is not None:
-            msg = {'value': value}
-            pub.single(topic, payload=msg, hostname=broker)
-        time.sleep(1 / float(rate))
+            pub.single(topic, value, hostname=broker)
+            print(f"Published value: {value}")
+
+        time.sleep(rate)
